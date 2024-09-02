@@ -29,55 +29,49 @@ import java.lang.annotation.*;
 @Target({ElementType.METHOD, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 @Inherited
-public @interface SentinelResource {
+/**
+ * QPS or thread count.
+ */
+public abstract int count() default 1;
 
-    /**
-     * @return name of the Sentinel resource
+     * Max queueing timeout in rate limiting.
      */
-    String value() default "";
-
+    public abstract int maxQueueingTimeMs() default -1;
     /**
-     * @return the entry type (inbound or outbound), outbound by default
+    /**
+     * Interval in seconds.
      */
-    EntryType entryType() default EntryType.OUT;
-
-    /**
-     * @return the classification (type) of the resource
-     * @since 1.7.0
-     */
-    int resourceType() default 0;
-
-    /**
+    public abstract long intervalSec() default 1;
      * @return name of the block exception function, empty by default
-     */
-    String blockHandler() default "";
-
     /**
+     * Whether to enable degrade.
+     */
+    public abstract boolean enableDegrade() default false;
      * The {@code blockHandler} is located in the same class with the original method by default.
-     * However, if some methods share the same signature and intend to set the same block handler,
-     * then users can set the class where the block handler exists. Note that the block handler method
-     * must be static.
-     *
+    /**
+     * Degrade strategy.
+     */
+    public abstract int degradeStrategy() default DegradeStrategyConstant.DEGRADE_STRATEGY_EXCEPTION;
      * @return the class where the block handler exists, should not provide more than one classes
-     */
-    Class<?>[] blockHandlerClass() default {};
-
     /**
+     * Time out in milliseconds.
+     */
+    public abstract long timeoutMs() default -1;
      * @return name of the fallback function, empty by default
-     */
-    String fallback() default "";
-
     /**
+     * Whether to enable entry poll.
+     */
+    public abstract boolean enableEntryPoll() default false;
      * The {@code defaultFallback} is used as the default universal fallback method.
-     * It should not accept any parameters, and the return type should be compatible
-     * with the original method.
-     *
-     * @return name of the default fallback method, empty by default
-     * @since 1.6.0
-     */
-    String defaultFallback() default "";
-
     /**
+     * Interval in milliseconds.
+     */
+    public abstract long pollIntervalMs() default 1000L;
+     * @since 1.6.0
+    /**
+     * Write sentry file on degrade or not.
+     */
+    public abstract boolean writeSentryOnDegrade() default false;
      * The {@code fallback} is located in the same class with the original method by default.
      * However, if some methods share the same signature and intend to set the same fallback,
      * then users can set the class where the fallback function exists. Note that the shared fallback method
@@ -104,3 +98,5 @@ public @interface SentinelResource {
      */
     Class<? extends Throwable>[] exceptionsToIgnore() default {};
 }
+
+
